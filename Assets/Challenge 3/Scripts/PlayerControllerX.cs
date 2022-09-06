@@ -5,9 +5,12 @@ using UnityEngine;
 public class PlayerControllerX : MonoBehaviour
 {
     public bool gameOver;
+    public bool tooHigh;
 
     public float floatForce;
     private float gravityModifier = 1.5f;
+    private float yRange = 16.0f;
+    private float bounceForce = 5;
     private Rigidbody playerRb;
 
     public ParticleSystem explosionParticle;
@@ -16,6 +19,7 @@ public class PlayerControllerX : MonoBehaviour
     private AudioSource playerAudio;
     public AudioClip moneySound;
     public AudioClip explodeSound;
+    public AudioClip bounceSound;
 
 
     // Start is called before the first frame update
@@ -23,6 +27,7 @@ public class PlayerControllerX : MonoBehaviour
     {
         Physics.gravity *= gravityModifier;
         playerAudio = GetComponent<AudioSource>();
+        playerRb = GetComponent<Rigidbody>();
 
         // Apply a small upward force at the start of the game
         playerRb.AddForce(Vector3.up * 5, ForceMode.Impulse);
@@ -33,7 +38,19 @@ public class PlayerControllerX : MonoBehaviour
     void Update()
     {
         // While space is pressed and player is low enough, float up
-        if (Input.GetKey(KeyCode.Space) && !gameOver)
+        if (transform.position.y > yRange)
+        {
+            tooHigh = true;
+            transform.position = new Vector3(transform.position.x, yRange, transform.position.z);
+            playerRb.AddForce(Vector3.down * bounceForce, ForceMode.Impulse);
+
+            //playerRb.velocity = Vector3.zero;
+        } else
+        {
+            tooHigh = false;
+        }
+
+        if (Input.GetKey(KeyCode.S) && !gameOver && !tooHigh)
         {
             playerRb.AddForce(Vector3.up * floatForce);
         }
@@ -58,6 +75,12 @@ public class PlayerControllerX : MonoBehaviour
             playerAudio.PlayOneShot(moneySound, 1.0f);
             Destroy(other.gameObject);
 
+        } 
+        
+        else if (other.gameObject.CompareTag("Ground") && !gameOver)
+        {
+            playerRb.AddForce(Vector3.up * bounceForce, ForceMode.Impulse);
+            playerAudio.PlayOneShot(bounceSound, 1.0f);
         }
 
     }
