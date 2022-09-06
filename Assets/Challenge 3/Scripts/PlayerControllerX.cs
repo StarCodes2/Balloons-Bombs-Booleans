@@ -37,20 +37,18 @@ public class PlayerControllerX : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // While space is pressed and player is low enough, float up
         if (transform.position.y > yRange)
         {
             tooHigh = true;
             transform.position = new Vector3(transform.position.x, yRange, transform.position.z);
             playerRb.AddForce(Vector3.down * bounceForce, ForceMode.Impulse);
-
-            //playerRb.velocity = Vector3.zero;
         } else
         {
             tooHigh = false;
         }
 
-        if (Input.GetKey(KeyCode.S) && !gameOver && !tooHigh)
+        // While space is pressed and player is low enough, float up
+        if (Input.GetKey(KeyCode.Space) && !gameOver && !tooHigh)
         {
             playerRb.AddForce(Vector3.up * floatForce);
         }
